@@ -17,7 +17,7 @@ class LyricsDisplay(ttk.Frame):
         self.scrollable_frame = ttk.Frame(self.canvas, style = 'Frame1.TFrame')
         
         self.button = tk.Button(self.canvas, text = "Pause", command = self.pause_lyrics)
-        self.button.pack(anchor="e", padx = 10, pady = 10)
+        self.button.pack(anchor = "e", padx = 10, pady = 10)
         
         self.song = song
         self.color = color
@@ -29,6 +29,7 @@ class LyricsDisplay(ttk.Frame):
         self.main_thread.start()
 
         # Ability to scroll through the lyrics
+        # from https://stackoverflow.com/questions/17355902/tkinter-binding-mousewheel-to-scrollbar
         self.scrollable_frame.bind(
             "<Configure>",
             lambda e: self.canvas.configure(
@@ -49,7 +50,7 @@ class LyricsDisplay(ttk.Frame):
             self.lines.append(lineLabel)
             lineLabel.pack(anchor = "w", padx = 10, expand = True)
             
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         self.logger = logging.getLogger(__name__)
         
     def start_lyrics(self) -> None:

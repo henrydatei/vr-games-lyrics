@@ -18,12 +18,12 @@ class LyricsManager:
         self.spotify_client_id = spotify_client_id
         self.spotify_client_secret = spotify_client_secret
         self.spotify_dc_cookie = spotify_dc_cookie
-        self.spotify = spotipy.Spotify(auth_manager = SpotifyOAuth(client_id=self.spotify_client_id,
-                                                                   client_secret=self.spotify_client_secret,
-                                                                   redirect_uri="http://localhost:8080",
-                                                                   scope="user-library-read")
+        self.spotify = spotipy.Spotify(auth_manager = SpotifyOAuth(client_id = self.spotify_client_id,
+                                                                   client_secret = self.spotify_client_secret,
+                                                                   redirect_uri = "http://localhost:8080",
+                                                                   scope = "user-library-read")
                                        )
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         self.logger = logging.getLogger(__name__) 
         
     def get_spotify_token(self) -> None:
