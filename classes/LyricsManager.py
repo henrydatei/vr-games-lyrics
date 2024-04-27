@@ -12,6 +12,8 @@ from classes.Song import Song
 from classes.LyricsLine import LyricsLine
 
 class LyricsManager:
+    """LyricsManager class to manage lyrics from Spotify and Netease. Call search_on_spotify() or search_on_netease() to get lyrics for a song.
+    """
     def __init__(self, spotify_client_id: str, spotify_client_secret: str, spotify_dc_cookie: str):
         self.spotify_client_id = spotify_client_id
         self.spotify_client_secret = spotify_client_secret
@@ -25,6 +27,8 @@ class LyricsManager:
         self.logger = logging.getLogger(__name__) 
         
     def get_spotify_token(self) -> None:
+        """To access the lyrics which are not in the official API, we need to get a token from Spotify. This function gets the token and saves it to ../token.json.
+        """
         self.logger.info("get_spotify_token: getting new token")
         headers = {
             'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36', 
@@ -40,6 +44,8 @@ class LyricsManager:
             json.dump(r.json(), f)
         
     def check_spotify_token(self) -> None:
+        """The token from Spotify expires after a certain time. This function checks if the token is still valid and gets a new one if it is expired.
+        """
         self.logger.info("check_spotify_token: checking token")
         try:
             with open(os.path.dirname(__file__) + "/../token.json", "r") as f:
@@ -52,6 +58,14 @@ class LyricsManager:
             self.get_spotify_token()
             
     def get_lyrics_from_spotify(self, track_id: str) -> List[LyricsLine]|None:
+        """Get lyrics from Spotify for a given track_id. Inspired by https://github.com/akashrchandran/spotify-lyrics-api
+
+        Args:
+            track_id (str): The track_id of the song.
+
+        Returns:
+            List[LyricsLine]|None: A list of LyricsLine objects or None if the lyrics could not be found.
+        """
         self.logger.info(f"get_lyrics_from_spotify: search lyrics for {track_id}")
         self.check_spotify_token()
         access_token = json.load(open(os.path.dirname(__file__) + "/../token.json"))["accessToken"]
@@ -65,7 +79,7 @@ class LyricsManager:
             "authorization": f"Bearer {access_token}", 
             "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.0.0 Safari/537.36"
         } 
-        r = requests.get(f"https://spclient.wg.spotify.com/color-lyrics/v2/track/{track_id}", params = params, headers = headers) # https://github.com/akashrchandran/spotify-lyrics-api
+        r = requests.get(f"https://spclient.wg.spotify.com/color-lyrics/v2/track/{track_id}", params = params, headers = headers)
         if r.status_code != 200:
             self.logger.error(f"get_lyrics_from_spotify: failed to get lyrics for {track_id}, status code: {r.status_code}")
             self.logger.error(f"additional information: {r.text}")
@@ -85,6 +99,14 @@ class LyricsManager:
         return lyrics_lines
     
     def search_on_spotify(self, query: str) -> Song|None:
+        """Search for a song on Spotify and get the song with lyrics, cover link, title and artist. The best match is selected based on popularity from the 3 best matches.
+
+        Args:
+            query (str): The query to search for.
+
+        Returns:
+            Song|None: A Song object or None if the song could not be found.
+        """
         self.logger.info(f"search_on_spotify: searching for {query}")
         try:
             result = self.spotify.search(query, limit = 3, type = "track")
@@ -107,6 +129,15 @@ class LyricsManager:
             return None
         
     def get_lyrics_from_netease(self, song_id: str, song_length_in_ms: int) -> List[LyricsLine]|None:
+        """Get lyrics from Netease for a given song_id. The song_length_in_ms is needed to calculate the duration of the last line in the lyrics.
+
+        Args:
+            song_id (str): The song_id of the song.
+            song_length_in_ms (int): The length of the song in milliseconds.
+
+        Returns:
+            List[LyricsLine]|None: A list of LyricsLine objects or None if the lyrics could not be found.
+        """
         self.logger.info(f"get_lyrics_from_netease: search lyrics for {song_id}")
         
         params = {
@@ -148,6 +179,15 @@ class LyricsManager:
         return lyrics_lines
     
     def search_on_netease(self, title: str, main_artist: str) -> Song|None:
+        """Search for a song on Netease and get the song with lyrics, title and artist. The best match is selected based on title and main_artist from the 10 best matches because the search on Netease is worse than Spotify's search.
+
+        Args:
+            title (str): The title of the song.
+            main_artist (str): The main artist of the song (or any other artist from the song).
+
+        Returns:
+            Song|None: A Song object or None if the song could not be found.
+        """
         q = title + " " + main_artist
         self.logger.info(f"search_on_netease: searching for {q}")
         try:
