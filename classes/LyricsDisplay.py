@@ -25,6 +25,7 @@ class LyricsDisplay(ttk.Frame):
         
         self.timer = Timer(speed = self.speed) # this timer should be in sync with the timer in the game. So when the level starts, this timer should start too.
         self.lines = []
+        self.current_line = -1
         self.main_thread = threading.Thread(target = self.main_loop)
         self.main_thread.start()
 
@@ -108,18 +109,21 @@ class LyricsDisplay(ttk.Frame):
             self.canvas.yview_moveto(i/len(self.lines))
         
     def main_loop(self) -> None:
-        """Main loop of the lyrics display. This loop will run in a separate thread and will keep track of the current time and show the ith line of the lyrics when the time comes. Can be stopped by pressing CTRL+C.
+        """Main loop of the lyrics display. This loop will run in a separate thread and will keep track of the current time and show the ith line of the lyrics when the time comes.
         """
         while True:
-            try:
-                if self.timer.is_running:
-                    current_time = self.timer.get_time()
-                    i = 0
-                    while i < len(self.song.lines) and self.song.lines[i].startMs < current_time:
-                        i += 1
+            if self.timer.is_running:
+                current_time = self.timer.get_time()
+                i = 0
+                while i < len(self.song.lines) and self.song.lines[i].startMs < current_time:
+                    i += 1
+                if i != self.current_line:
+                    self.current_line = i
                     self.show_ith_line(i)
-            except Exception as e:
-                self.logger.error(e)
+                if i == len(self.song.lines):
+                    self.logger.info("Lyrics ended")
+                    self.stop_lyrics()
+                    break
                         
     def jump_to_time(self, time_in_ms: int) -> None:
         """Jumps to the specified time in milliseconds."""
