@@ -13,7 +13,7 @@ from classes.LyricsManager import LyricsManager
 
 lyricsmanager = LyricsManager("my_spotify_client_id", "my_spotify_client_secret", "my_spotify_dc_cookie")
 print(lyricsmanager.search_on_netease("we own it", "2 Chainz"))
-print(lyricsmanager.search_on_spotify("we own it 2 Chainz"))
+print(lyricsmanager.search_on_spotify("we own it", "2 Chainz"))
 ```
 
 How to get Spotify Client ID and Client Secret:

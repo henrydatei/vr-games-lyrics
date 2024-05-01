@@ -98,7 +98,7 @@ class LyricsManager:
             lyrics_lines.append(lyrics_line)
         return lyrics_lines
     
-    def search_on_spotify(self, query: str) -> Song|None:
+    def search_on_spotify(self, title: str, main_artist: str) -> Song|None:
         """Search for a song on Spotify and get the song with lyrics, cover link, title and artist. The best match is selected based on popularity from the 3 best matches.
 
         Args:
@@ -107,6 +107,7 @@ class LyricsManager:
         Returns:
             Song|None: A Song object or None if the song could not be found.
         """
+        query = title + " " + main_artist
         self.logger.info(f"search_on_spotify: searching for {query}")
         try:
             result = self.spotify.search(query, limit = 3, type = "track")
