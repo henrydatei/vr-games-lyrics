@@ -127,4 +127,5 @@ class LyricsDisplay(ttk.Frame):
                         
     def jump_to_time(self, time_in_ms: int) -> None:
         """Jumps to the specified time in milliseconds."""
-        pass
+        self.timer.set_time(time_in_ms)
+        self.logger.info(f"Jumped to time {time_in_ms} ms")
