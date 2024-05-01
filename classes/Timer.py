@@ -1,7 +1,7 @@
 import time
 
 class Timer:
-    def __init__(self, speed=1):
+    def __init__(self, speed: float = 1):
         self.start_time = None
         self.pause_time = None
         self.paused_duration = 0
@@ -36,3 +36,7 @@ class Timer:
             elapsed_time = (time.time() - self.start_time) * self.speed
             paused_time = self.paused_duration * self.speed
             return int((elapsed_time - paused_time) * 1000)
+
+    def set_time(self, milliseconds: int):
+        if self.is_running:
+            self.start_time = time.time() - milliseconds/self.speed / 1000 - self.paused_duration
