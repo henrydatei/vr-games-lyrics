@@ -24,6 +24,8 @@ def on_message(ws, message):
     logger.debug(f"Received message: {message}")
     global first_message
     global previous_message
+    global lyricsmanager
+    global window
     data = json.loads(message)
     
     # check if message is first message and contains to much information, then ignore it
@@ -89,59 +91,66 @@ def connection():
                                 on_close=on_close)
     ws.run_forever()
 
-secrets = json.load(open(os.path.dirname(__file__) + "/secrets.json"))
+def main():
+    global lyricsmanager
+    global window
     
-first_message = True
-previous_message = {
-    'GameVersion': None, 
-    'PluginVersion': None, 
-    'InLevel': None, 
-    'LevelPaused': None, 
-    'LevelFinished': None, 
-    'LevelFailed': None, 
-    'LevelQuit': None, 
-    'Hash': None, 
-    'SongName': '', 
-    'SongSubName': '', 
-    'SongAuthor': '', 
-    'Mapper': '', 
-    'BSRKey': None, 
-    'CoverImage': None, 
-    'Duration': 0, 
-    'MapType': '', 
-    'Environment': '', 
-    'Difficulty': '', 
-    'CustomDifficultyLabel': None, 
-    'BPM': 0, 
-    'NJS': 0.0, 
-    'Modifiers': None, 
-    'ModifiersMultiplier': 1.0, 
-    'PracticeMode': None, 
-    'PracticeModeModifiers': None,
-    'PP': None, 
-    'Star': None, 
-    'IsMultiplayer': None, 
-    'MultiplayerLobbyMaxSize': None, 
-    'MultiplayerLobbyCurrentSize': None, 
-    'PreviousRecord': None, 
-    'PreviousBSR': None, 
-    'UnixTimestamp': None
-}
+    secrets = json.load(open(os.path.dirname(__file__) + "/secrets.json"))
+        
+    first_message = True
+    previous_message = {
+        'GameVersion': None, 
+        'PluginVersion': None, 
+        'InLevel': None, 
+        'LevelPaused': None, 
+        'LevelFinished': None, 
+        'LevelFailed': None, 
+        'LevelQuit': None, 
+        'Hash': None, 
+        'SongName': '', 
+        'SongSubName': '', 
+        'SongAuthor': '', 
+        'Mapper': '', 
+        'BSRKey': None, 
+        'CoverImage': None, 
+        'Duration': 0, 
+        'MapType': '', 
+        'Environment': '', 
+        'Difficulty': '', 
+        'CustomDifficultyLabel': None, 
+        'BPM': 0, 
+        'NJS': 0.0, 
+        'Modifiers': None, 
+        'ModifiersMultiplier': 1.0, 
+        'PracticeMode': None, 
+        'PracticeModeModifiers': None,
+        'PP': None, 
+        'Star': None, 
+        'IsMultiplayer': None, 
+        'MultiplayerLobbyMaxSize': None, 
+        'MultiplayerLobbyCurrentSize': None, 
+        'PreviousRecord': None, 
+        'PreviousBSR': None, 
+        'UnixTimestamp': None
+    }
 
-lyricsmanager = LyricsManager(secrets['spotify_client_id'], secrets['spotify_client_secret'], secrets['spotify_dc_cookie'])    
+    lyricsmanager = LyricsManager(secrets['spotify_client_id'], secrets['spotify_client_secret'], secrets['spotify_dc_cookie'])    
 
-# init GUI
-window = tk.Tk()
-window.state("zoomed")
-window.attributes('-alpha',0.5)
+    # init GUI
+    window = tk.Tk()
+    window.state("zoomed")
+    window.attributes('-alpha',0.5)
 
-# thread for receiving events from Beatsaber
-t = threading.Thread(target = connection)
-t.start()
+    # thread for receiving events from Beatsaber
+    t = threading.Thread(target = connection)
+    t.start()
 
-# start GUI
-window.mainloop()
+    # start GUI
+    window.mainloop()
 
-# if here then window.mainloop() was exited -> close websocket
-global ws
-ws.close()
+    # if here then window.mainloop() was exited -> close websocket
+    global ws
+    ws.close()
+    
+if __name__ == "__main__":
+    main()
