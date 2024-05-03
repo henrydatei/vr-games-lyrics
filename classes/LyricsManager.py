@@ -111,6 +111,9 @@ class LyricsManager:
         self.logger.info(f"search_on_spotify: searching for {query}")
         try:
             result = self.spotify.search(query, limit = 3, type = "track")
+            if len(result["tracks"]["items"]) == 0:
+                self.logger.error(f"search_on_spotify: failed to find {query}")
+                return None
             # sort result by popularity - best match has highest popularity
             result["tracks"]["items"].sort(key = lambda x: x["popularity"], reverse = True)
             title = result["tracks"]["items"][0]["name"].split("(")[0].split(" - ")[0]
