@@ -4,6 +4,8 @@ import tkinter as tk
 import os
 import json
 import logging
+import win32gui
+import time
 
 from classes.LyricsManager import LyricsManager
 from classes.LyricsDisplay import LyricsDisplay
@@ -91,9 +93,33 @@ def connection():
                                 on_close=on_close)
     ws.run_forever()
 
+def window_cb(hwnd, extra):
+    global window
+    global bs_exist
+    global bs_starting
+    if win32gui.GetWindowText(hwnd) == "Beat Saber":
+        bs_exist = True
+        if bs_starting == True:
+            # this var gets set if it wasn't there at program start
+            # therefor we assume it's starting. It needs time to resize its wnd
+            time.sleep(8)
+        rect = win32gui.GetWindowRect(hwnd)
+        x = rect[0]
+        y = rect[1]
+        w = rect[2] - x
+        h = rect[3] - y
+        tk_y = y + 0.66 * h
+        tk_x = x
+        tk_w = w
+        tk_h = 0.33 * h
+        window.geometry('%dx%d+%d+%d' % (tk_w, tk_h, tk_x, tk_y))
+        window.title("Lyrics Display")
+
 def main():
     global lyricsmanager
     global window
+    global bs_exist
+    global bs_starting
     
     secrets = json.load(open(os.path.dirname(__file__) + "/secrets.json"))
         
@@ -135,11 +161,28 @@ def main():
     }
 
     lyricsmanager = LyricsManager(secrets['spotify_client_id'], secrets['spotify_client_secret'], secrets['spotify_dc_cookie'])    
-
+    
     # init GUI
     window = tk.Tk()
-    window.state("zoomed")
     window.attributes('-alpha',0.5)
+    window.attributes('-topmost', 1)
+    window.overrideredirect(True)
+
+    close = tk.Button(window, text = "X", command = lambda: window.destroy())
+    close.pack(anchor = "e", padx = 10, pady = 10)
+
+    # Check if Beat Saber is running
+    bs_exist = False
+    bs_starting = False
+    has_logged = False
+    while bs_exist == False:
+        win32gui.EnumWindows(window_cb, None)
+        if bs_exist == False:
+            time.sleep(1)
+            if has_logged == False:
+                has_logged = True
+                bs_starting = True
+                logger.info("Waiting for Beat Saber to Start .... ")
 
     # thread for receiving events from Beatsaber
     t = threading.Thread(target = connection)

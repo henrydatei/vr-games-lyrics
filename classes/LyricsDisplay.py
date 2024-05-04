@@ -17,7 +17,7 @@ class LyricsDisplay(ttk.Frame):
         self.scrollable_frame = ttk.Frame(self.canvas, style = 'Frame1.TFrame')
         
         self.button = tk.Button(self.canvas, text = "Pause", command = self.pause_lyrics)
-        self.button.pack(anchor = "e", padx = 10, pady = 10)
+        self.button.pack(anchor = "e", padx = 10, pady = 40)
         
         self.song = song
         self.color = color
