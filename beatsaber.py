@@ -6,6 +6,8 @@ import json
 import logging
 import win32gui
 import time
+import subprocess
+import sys
 
 from classes.LyricsManager import LyricsManager
 from classes.LyricsDisplay import LyricsDisplay
@@ -18,6 +20,9 @@ def on_error(ws, error):
 
 def on_close(ws, close_status_code, close_msg):
     logger.info(f"Closed connection with status code {close_status_code} and message {close_msg}")
+    # restart the program
+    subprocess.Popen([sys.executable, os.path.abspath(__file__)])
+    sys.exit()
 
 def on_open(ws):
     logger.info("Connection opened")
