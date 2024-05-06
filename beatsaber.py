@@ -129,6 +129,8 @@ def main():
     global window
     global bs_exist
     global bs_starting
+    global first_message
+    global previous_message
     
     secrets = json.load(open(os.path.dirname(__file__) + "/secrets.json"))
         
