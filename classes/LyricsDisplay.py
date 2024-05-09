@@ -17,12 +17,14 @@ class LyricsDisplay(ttk.Frame):
         s.configure('TFrame', background = 'green')
         s.configure('Frame1.TFrame', background = color)
         self.canvas = tk.Canvas(self, background = color)
-        self.scrollbar = ttk.Scrollbar(self, orient = "vertical", command = self.canvas.yview)
-        self.scrollable_frame = ttk.Frame(self.canvas, style = 'Frame1.TFrame')
+        self.canvas.pack(fill = "both", expand = True)
+        # self.canvas = ttk.Frame(self, style = 'Frame1.TFrame')
+        # self.scrollbar = ttk.Scrollbar(self, orient = "vertical", command = self.canvas.yview)
+        # self.scrollable_frame = ttk.Frame(self.canvas, style = 'Frame1.TFrame')
         
-        self.logger.debug("Creating button")
-        self.button = tk.Button(self.canvas, text = "Pause", command = self.pause_lyrics)
-        self.button.pack(anchor = "e", padx = 10, pady = 40)
+        # self.logger.debug("Creating button")
+        # self.button = tk.Button(self.canvas, text = "Pause", command = self.pause_lyrics)
+        # self.button.pack(anchor = "e", padx = 10, pady = 40)
         
         self.logger.debug("Setting up variables")
         self.song = song
@@ -31,8 +33,11 @@ class LyricsDisplay(ttk.Frame):
         
         self.logger.debug("Creating timer")
         self.timer = Timer(speed = self.speed) # this timer should be in sync with the timer in the game. So when the level starts, this timer should start too.
-        self.lines = []
+        
+        self.logger.debug("Setting up the lyrics lines variables")
+        self.preview_lines = []
         self.current_line = -1
+        self.lines_to_show = 4
         
         self.logger.debug("Starting main loop")
         self.run_main_loop = True
@@ -42,30 +47,25 @@ class LyricsDisplay(ttk.Frame):
         self.logger.debug("Setting up the canvas and scrollbar")
         # Ability to scroll through the lyrics
         # from https://stackoverflow.com/questions/17355902/tkinter-binding-mousewheel-to-scrollbar
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(
-                scrollregion = self.canvas.bbox("all")
-            )
-        )
-        self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
-        self.canvas.bind_all("<Button-4>", self.on_mousewheel_linux_up)
-        self.canvas.bind_all("<Button-5>", self.on_mousewheel_linux_down)
-        self.canvas.create_window((0, 0), window = self.scrollable_frame, anchor = "nw")
-        self.canvas.configure(yscrollcommand = self.scrollbar.set)
-        self.canvas.pack(side = "left", fill = "both", expand = True)
-        self.scrollbar.pack(side = "right", fill = "y")
+        # self.scrollable_frame.bind(
+        #     "<Configure>",
+        #     lambda e: self.canvas.configure(
+        #         scrollregion = self.canvas.bbox("all")
+        #     )
+        # )
+        # self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
+        # self.canvas.bind_all("<Button-4>", self.on_mousewheel_linux_up)
+        # self.canvas.bind_all("<Button-5>", self.on_mousewheel_linux_down)
+        # self.canvas.create_window((0, 0), window = self.scrollable_frame, anchor = "nw")
+        # self.canvas.configure(yscrollcommand = self.scrollbar.set)
+        # self.canvas.pack(side = "left", fill = "both", expand = True)
+        # self.scrollbar.pack(side = "right", fill = "y")
         
-        self.logger.debug("Displaying the lyrics")
-        # Display the lyrics
-        for line in self.song.lines:
-            self.logger.debug(f"Adding line: {line.text}")
-            lineLabel = tk.Label(self.scrollable_frame, text = line.text, font = ("Roboto", 42), background = color, fg = "black")
-            self.logger.debug(f"Line added: {line.text}")
-            self.lines.append(lineLabel)
-            self.logger.debug(f"Line appended: {line.text}")
-            lineLabel.pack(anchor = "w", padx = 10, expand = True)
-            self.logger.debug(f"Line packed: {line.text}")
+        self.logger.debug("Displaying the preview lyrics")            
+        for i in range(self.lines_to_show):
+            line = tk.Label(self.canvas, text = self.song.lines[i].text, font = ("Roboto", 42), background = color, fg = "black")
+            self.preview_lines.append(line)
+            line.pack(anchor = "n", padx = 10, expand = True)
         
     def start_lyrics(self) -> None:
         """Starts the timer and the lyrics will start scrolling.
@@ -113,16 +113,18 @@ class LyricsDisplay(ttk.Frame):
         Args:
             i (int): The line number to show. Starts from 0 and goes up to len(self.lines) - 1.
         """
-        if i < 0 or i >= len(self.lines):
-            self.logger.error(f"Invalid line number, i = {i}, len(self.lines) = {len(self.lines)}")
+        if i < 0 or i >= len(self.song.lines):
+            self.logger.error(f"Invalid line number, i = {i}, len(self.lines) = {len(self.song.lines)}")
         else:
-            # Make all lines black
-            for j in range(len(self.lines)):
-                self.lines[j].config(fg = "black")
-            # Make ith line white
-            self.lines[i].config(fg = "white")
-            # Scroll to ith line
-            self.canvas.yview_moveto(i/len(self.lines))
+            # Erase the text of all the preview lines
+            for line in self.preview_lines:
+                line.config(text = "")
+            # Show the ith line in white in the first preview line
+            self.preview_lines[0].config(text = self.song.lines[i].text, fg = "white")
+            # Show the next lines in black in the next preview lines
+            for j in range(1, self.lines_to_show):
+                if i + j < len(self.song.lines):
+                    self.preview_lines[j].config(text = self.song.lines[i + j].text, fg = "black")
         
     def main_loop(self) -> None:
         """Main loop of the lyrics display. This loop will run in a separate thread and will keep track of the current time and show the ith line of the lyrics when the time comes.
