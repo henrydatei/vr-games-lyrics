@@ -23,7 +23,7 @@ def on_close(ws, close_status_code, close_msg):
     logger.info(f"Closed connection with status code {close_status_code} and message {close_msg}")
     window.destroy()
     # restart the program
-    subprocess.Popen([sys.executable, os.path.abspath(__file__)])
+    # subprocess.Popen([sys.executable, os.path.abspath(__file__)])
     sys.exit()
 
 def on_open(ws):
