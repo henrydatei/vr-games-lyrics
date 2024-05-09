@@ -19,7 +19,9 @@ def on_error(ws, error):
     logger.error(f"Error occured in websocket: {error}")
 
 def on_close(ws, close_status_code, close_msg):
+    global window
     logger.info(f"Closed connection with status code {close_status_code} and message {close_msg}")
+    window.destroy()
     # restart the program
     subprocess.Popen([sys.executable, os.path.abspath(__file__)])
     sys.exit()
