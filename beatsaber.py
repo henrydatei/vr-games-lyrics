@@ -62,8 +62,8 @@ def on_message(ws, message):
         lyrics = lyricsmanager.search_in_database(data["SongName"], data["SongAuthor"])
         if lyrics is None:
             lyrics = lyricsmanager.search_on_netease(data["SongName"], data["SongAuthor"])
-        if lyrics is None:
-            lyrics = lyricsmanager.search_on_spotify(data["SongName"], data["SongAuthor"])
+        # if lyrics is None:
+        #     lyrics = lyricsmanager.search_on_spotify(data["SongName"], data["SongAuthor"])
         if lyrics is None:
             logger.error("Could not find lyrics for this song")
             return
