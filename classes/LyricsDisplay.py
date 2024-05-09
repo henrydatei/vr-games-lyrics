@@ -98,7 +98,7 @@ class LyricsDisplay(ttk.Frame):
             i (int): The line number to show. Starts from 0 and goes up to len(self.lines) - 1.
         """
         if i < 0 or i >= len(self.lines):
-            self.logger.error("Invalid line number")
+            self.logger.error(f"Invalid line number, i = {i}, len(self.lines) = {len(self.lines)}")
         else:
             # Make all lines black
             for j in range(len(self.lines)):
