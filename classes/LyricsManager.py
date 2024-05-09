@@ -185,7 +185,7 @@ class LyricsManager:
         params = {
             "id": song_id
         }
-        r = requests.get("https://music.xianqiao.wang/neteaseapiv2/lyric", params = params)
+        r = requests.get("https://music.xianqiao.wang/neteaseapiv2/lyric", params = params, timeout=5)
         if r.status_code != 200:
             self.logger.error(f"get_lyrics_from_netease: failed to get lyrics for {song_id}, status code: {r.status_code}")
             self.logger.error(f"additional information: {r.text}")
@@ -238,7 +238,7 @@ class LyricsManager:
                 "type": 1, 
                 "keywords": q
             }
-            r = requests.get("https://music.xianqiao.wang/neteaseapiv2/search", params = params)
+            r = requests.get("https://music.xianqiao.wang/neteaseapiv2/search", params = params, timeout=5)
             r.raise_for_status()
             for song in r.json()["result"]["songs"]:
                 if song["name"].lower() == title.lower() and main_artist.lower() in [artist["name"].lower() for artist in song["artists"]]:
@@ -254,7 +254,6 @@ class LyricsManager:
             return None
         except Exception as e:
             self.logger.error(f"search_on_netease: failed to search for {q}, error: {e}")
-            self.logger.error(f"additional information: {r.text}")
             return None
         
     def save_song_to_database(self, song: Song, query_title: str, query_main_artist: str) -> None:
