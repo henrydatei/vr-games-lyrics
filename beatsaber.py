@@ -37,7 +37,7 @@ def on_message(ws, message):
     
     # check if message is first message and contains to much information, then ignore it
     if first_message and data["SongName"] != "" and data["SongAuthor"] != "":
-        logger.warn("First message contains too much information for a first message, ignoring it")
+        logger.warning("First message contains too much information for a first message, ignoring it")
         first_message = False
         return
     
