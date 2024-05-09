@@ -268,24 +268,26 @@ class LyricsManager:
         result = cursor.fetchone()
         if result:
             self.logger.info(f"save_song_to_database: {query_title} - {query_main_artist} already in database")
-            return
-        self.logger.info(f"save_song_to_database: saving {query_title} - {query_main_artist} to database")
-        cursor.execute('''
-            INSERT INTO songs (title, artist, cover_link)
-            VALUES (?, ?, ?)
-        ''', (song.title, song.artist, song.cover_link))
-        song_id = cursor.lastrowid
-        for line in song.lines:
+        else:
+            self.logger.info(f"save_song_to_database: saving {query_title} - {query_main_artist} to database")
             cursor.execute('''
-                INSERT INTO lyrics_lines (song_id, text, startMs, endMs, durationMs)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (song_id, line.text, line.startMs, line.endMs, line.durationMs))
-        cursor.execute('''
-            INSERT INTO querys (query_title, query_main_artist, song_id)
-            VALUES (?, ?, ?)
-        ''', (query_title, query_main_artist, song_id))
-        conn.commit()
+                INSERT INTO songs (title, artist, cover_link)
+                VALUES (?, ?, ?)
+            ''', (song.title, song.artist, song.cover_link))
+            song_id = cursor.lastrowid
+            for line in song.lines:
+                cursor.execute('''
+                    INSERT INTO lyrics_lines (song_id, text, startMs, endMs, durationMs)
+                    VALUES (?, ?, ?, ?, ?)
+                ''', (song_id, line.text, line.startMs, line.endMs, line.durationMs))
+            cursor.execute('''
+                INSERT INTO querys (query_title, query_main_artist, song_id)
+                VALUES (?, ?, ?)
+            ''', (query_title, query_main_artist, song_id))
+            conn.commit()
+        self.logger.debug("save_song_to_database, closing connection to database")
         conn.close()
+        self.logger.info(f"save_song_to_database: closed connection to database")
         
     def search_in_database(self, title: str, main_artist: str) -> Song:
         """Search for a song in the SQLite database and return it if found."""
