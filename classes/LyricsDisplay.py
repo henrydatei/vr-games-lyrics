@@ -26,6 +26,9 @@ class LyricsDisplay(ttk.Frame):
         self.timer = Timer(speed = self.speed) # this timer should be in sync with the timer in the game. So when the level starts, this timer should start too.
         self.lines = []
         self.current_line = -1
+        
+        self.logger.debug("Starting main loop")
+        self.run_main_loop = True
         self.main_thread = threading.Thread(target = self.main_loop)
         self.main_thread.start()
 
@@ -64,6 +67,7 @@ class LyricsDisplay(ttk.Frame):
         """Stops the timer and the lyrics will stop scrolling.
         """
         self.timer.stop()
+        self.run_main_loop = False
         self.logger.info("Lyrics stopped")
         
     def pause_lyrics(self) -> None:
@@ -111,7 +115,7 @@ class LyricsDisplay(ttk.Frame):
     def main_loop(self) -> None:
         """Main loop of the lyrics display. This loop will run in a separate thread and will keep track of the current time and show the ith line of the lyrics when the time comes.
         """
-        while True:
+        while self.run_main_loop:
             if self.timer.is_running:
                 current_time = self.timer.get_time()
                 i = 0
