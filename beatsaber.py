@@ -35,6 +35,7 @@ def on_message(ws, message):
     global previous_message
     global lyricsmanager
     global window
+    global lyricsFrame
     data = json.loads(message)
     
     # check if message is first message and contains to much information, then ignore it
@@ -53,6 +54,7 @@ def on_message(ws, message):
     
     if "SongName" in updated_keys and data["SongName"] != "" and "SongAuthor" in updated_keys and data["SongAuthor"] != "":
         logger.info(f"Song started because it changed to {data['SongName']} by {data['SongAuthor']}")
+        lyricsFrame.stop_lyrics() if lyricsFrame else None
         # empty window
         for child in window.winfo_children():
             child.destroy()
@@ -71,8 +73,10 @@ def on_message(ws, message):
         lyricsFrame = LyricsDisplay(container=window, song=lyrics, color="green", speed=1)
         lyricsFrame.pack(fill = "both", expand = True)
         lyricsFrame.start_lyrics()
-    elif data["LevelFinished"] or data["LevelQuit"] or data["LevelFailed"]:
-        logger.info("Song ended, failed or quit, removing lyrics display")
+    elif data["LevelFinished"] or data["LevelQuit"]:
+        logger.info("Song ended or quit, removing lyrics display") # failed will trigger when playing with nofail on
+        if lyricsFrame:
+            lyricsFrame.stop_lyrics()
         # empty window
         for child in window.winfo_children():
             child.destroy()
@@ -133,8 +137,11 @@ def main():
     global bs_starting
     global first_message
     global previous_message
+    global lyricsFrame
     
     secrets = json.load(open(os.path.dirname(__file__) + "/secrets.json"))
+    
+    lyricsFrame = None
         
     first_message = True
     previous_message = {
