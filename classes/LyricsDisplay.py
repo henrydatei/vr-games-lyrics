@@ -9,6 +9,10 @@ from classes.Timer import Timer
 class LyricsDisplay(ttk.Frame):
     def __init__(self, container, song: Song, color: str, speed: float, *args, **kwargs):
         super().__init__(container, *args, **kwargs)
+        logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.logger = logging.getLogger(__name__)
+        
+        self.logger.debug("Creating LyricsDisplay")
         s = ttk.Style()
         s.configure('TFrame', background = 'green')
         s.configure('Frame1.TFrame', background = color)
@@ -16,13 +20,16 @@ class LyricsDisplay(ttk.Frame):
         self.scrollbar = ttk.Scrollbar(self, orient = "vertical", command = self.canvas.yview)
         self.scrollable_frame = ttk.Frame(self.canvas, style = 'Frame1.TFrame')
         
+        self.logger.debug("Creating button")
         self.button = tk.Button(self.canvas, text = "Pause", command = self.pause_lyrics)
         self.button.pack(anchor = "e", padx = 10, pady = 40)
         
+        self.logger.debug("Setting up variables")
         self.song = song
         self.color = color
         self.speed = speed if speed != 0 else 1
         
+        self.logger.debug("Creating timer")
         self.timer = Timer(speed = self.speed) # this timer should be in sync with the timer in the game. So when the level starts, this timer should start too.
         self.lines = []
         self.current_line = -1
@@ -32,6 +39,7 @@ class LyricsDisplay(ttk.Frame):
         self.main_thread = threading.Thread(target = self.main_loop)
         self.main_thread.start()
 
+        self.logger.debug("Setting up the canvas and scrollbar")
         # Ability to scroll through the lyrics
         # from https://stackoverflow.com/questions/17355902/tkinter-binding-mousewheel-to-scrollbar
         self.scrollable_frame.bind(
@@ -48,24 +56,28 @@ class LyricsDisplay(ttk.Frame):
         self.canvas.pack(side = "left", fill = "both", expand = True)
         self.scrollbar.pack(side = "right", fill = "y")
         
+        self.logger.debug("Displaying the lyrics")
         # Display the lyrics
         for line in self.song.lines:
+            self.logger.debug(f"Adding line: {line.text}")
             lineLabel = tk.Label(self.scrollable_frame, text = line.text, font = ("Roboto", 42), background = color, fg = "black")
+            self.logger.debug(f"Line added: {line.text}")
             self.lines.append(lineLabel)
+            self.logger.debug(f"Line appended: {line.text}")
             lineLabel.pack(anchor = "w", padx = 10, expand = True)
-            
-        logging.basicConfig(level = logging.INFO, format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.logger = logging.getLogger(__name__)
+            self.logger.debug(f"Line packed: {line.text}")
         
     def start_lyrics(self) -> None:
         """Starts the timer and the lyrics will start scrolling.
         """
+        self.logger.debug("Lyrics starting")
         self.timer.start()
         self.logger.info("Lyrics started")
         
     def stop_lyrics(self) -> None:
         """Stops the timer and the lyrics will stop scrolling.
         """
+        self.logger.debug("Lyrics stopping")
         self.timer.stop()
         self.run_main_loop = False
         self.logger.info("Lyrics stopped")

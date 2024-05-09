@@ -68,10 +68,14 @@ def on_message(ws, message):
             logger.error("Could not find lyrics for this song")
             return
         # save lyrics to database
+        logger.info("Saving lyrics to database")
         lyricsmanager.save_song_to_database(lyrics, data["SongName"], data["SongAuthor"])
         # display lyrics
+        logger.info("Displaying lyrics")
         lyricsFrame = LyricsDisplay(container=window, song=lyrics, color="green", speed=1)
+        logger.info("Packing lyrics frame")
         lyricsFrame.pack(fill = "both", expand = True)
+        logger.info("Starting lyrics")
         lyricsFrame.start_lyrics()
     elif data["LevelFinished"] or data["LevelQuit"]:
         logger.info("Song ended or quit, removing lyrics display") # failed will trigger when playing with nofail on
@@ -186,7 +190,7 @@ def main():
     window = tk.Tk()
     window.attributes('-alpha',0.5)
     window.attributes('-topmost', 1)
-    window.overrideredirect(True)
+    # window.overrideredirect(True)
 
     close = tk.Button(window, text = "X", command = lambda: window.destroy())
     close.pack(anchor = "e", padx = 10, pady = 10)
@@ -212,6 +216,7 @@ def main():
     window.mainloop()
 
     # if here then window.mainloop() was exited -> close websocket
+    lyricsFrame.stop_lyrics() if lyricsFrame else None
     global ws
     ws.close()
     
