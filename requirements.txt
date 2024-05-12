@@ -1,0 +1,6 @@
+Requests>=2.31.0
+spotipy>=2.22.1
+syncedlyrics>=0.9.0
+websocket_client>=1.6.1
+websocket_client>=1.2.3
+win32gui>=221.6
