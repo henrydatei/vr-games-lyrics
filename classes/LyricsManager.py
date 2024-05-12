@@ -8,6 +8,7 @@ import time
 from typing import List
 import re
 import sqlite3
+import syncedlyrics
 
 from classes.Song import Song
 from classes.LyricsLine import LyricsLine
@@ -140,8 +141,9 @@ class LyricsManager:
         """Search for a song on Spotify and get the song with lyrics, cover link, title and artist. The best match is selected based on popularity from the 3 best matches.
 
         Args:
-            query (str): The query to search for.
-
+            title (str): The title of the song.
+            main_artist (str): The main artist of the song (or any other artist from the song).
+            
         Returns:
             Song|None: A Song object or None if the song could not be found.
         """
@@ -328,3 +330,70 @@ class LyricsManager:
             ))
         conn.close()
         return Song(title=title, artist=artist, cover_link=cover_link if cover_link != 'None' else None, lines=lyrics_lines)
+    
+    def get_lyrics_from_syncedlyrics(self, title: str, main_artist: str, song_length_in_ms: int) -> List[LyricsLine]|None:
+        """Search for lyrics with Python package syncedlyrics (https://github.com/moehmeni/syncedlyrics) and return them as a list of LyricsLine objects."""
+        query = title + " " + main_artist
+        lyrics_text = syncedlyrics.search(query, allow_plain_format=False)
+        if lyrics_text is None:
+            return None
+        
+        pattern = re.compile(r'\[(\d{2}):(\d{2})\.(\d{2})\] (.+)')
+        matches = pattern.findall(lyrics_text)
+        lyrics_lines = []
+
+        def timestamp_to_ms(minutes: int, seconds: int, milliseconds: int) -> int:
+            """Convert timestamp to milliseconds."""
+            return (minutes * 60 * 1000) + (seconds * 1000) + milliseconds * 10
+
+        for i, match in enumerate(matches):
+            minutes, seconds, centiseconds, text = match
+            start_ms = timestamp_to_ms(int(minutes), int(seconds), int(centiseconds))
+            
+            # Determine end time or use a default for the last line
+            if i + 1 < len(matches):
+                next_minutes, next_seconds, next_centiseconds, _ = matches[i + 1]
+                end_ms = timestamp_to_ms(int(next_minutes), int(next_seconds), int(next_centiseconds))
+            else:
+                end_ms = song_length_in_ms
+            
+            duration_ms = end_ms - start_ms
+            lyrics_lines.append(LyricsLine(text=text, startMs=start_ms, endMs=end_ms, durationMs=duration_ms))
+        
+        return lyrics_lines
+    
+    def search_on_spotify_with_syncedlyrics_provider(self, title: str, main_artist: str) -> Song|None:
+        """Search for a song on Spotify and get the song with lyrics, cover link, title and artist. The best match is selected based on popularity from the 3 best matches. The lyrics comes from the syncedlyrics package.
+
+        Args:
+            title (str): The title of the song.
+            main_artist (str): The main artist of the song (or any other artist from the song).
+
+        Returns:
+            Song|None: A Song object or None if the song could not be found.
+        """
+        query = title + " " + main_artist
+        self.logger.info(f"search_on_spotify_with_syncedlyrics_provider: searching for {query}")
+        try:
+            result = self.spotify.search(query, limit = 3, type = "track")
+            if len(result["tracks"]["items"]) == 0:
+                self.logger.error(f"search_on_spotify_with_syncedlyrics_provider: failed to find {query}")
+                return None
+            # sort result by popularity - best match has highest popularity
+            result["tracks"]["items"].sort(key = lambda x: x["popularity"], reverse = True)
+            title = result["tracks"]["items"][0]["name"].split("(")[0].split(" - ")[0]
+            artists = [artist["name"] for artist in result["tracks"]["items"][0]["artists"]]
+            coverLink = result["tracks"]["items"][0]["album"]["images"][0]["url"]
+            lyrics_lines = self.get_lyrics_from_syncedlyrics(title, artists[0], result["tracks"]["items"][0]["duration_ms"])
+            if not lyrics_lines:
+                self.logger.error(f"search_on_spotify_with_syncedlyrics_provider: failed to get lyrics for {query}")
+                return None
+            return Song(
+                lines = lyrics_lines, 
+                cover_link = coverLink, 
+                title = title, 
+                artist = ", ".join(artists)
+            )
+        except Exception as e:
+            self.logger.error(f"search_on_spotify_with_syncedlyrics_provider: failed to search for {query}, error: {e}")
+            return None

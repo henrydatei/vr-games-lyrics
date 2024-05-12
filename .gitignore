@@ -163,3 +163,4 @@ token.json
 secrets.json
 test.py
 lyrics.db
+.syncedlyrics/musixmatch_token.json
