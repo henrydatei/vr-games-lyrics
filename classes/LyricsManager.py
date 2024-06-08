@@ -311,10 +311,10 @@ class LyricsManager:
         ''', (song_id,))
         result = cursor.fetchone()
         if not result:
-            self.logger.error(f"search_in_database: failed to find {title} - {main_artist} when searching in songs table")
+            self.logger.error(f"search_in_database: failed to find {title} - {main_artist} when searching in songs table with song_id {song_id}")
             return None
         song_id, title, artist, cover_link = result
-        self.logger.info(f"search_in_database: found {title} - {artist} in songs table")
+        self.logger.info(f"search_in_database: found {title} - {artist} in songs table with song_id {song_id}")
         cursor.execute('''
             SELECT * FROM lyrics_lines
             WHERE song_id = ?
