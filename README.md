@@ -12,8 +12,11 @@ You can use the components individually, for example use the `LyricsManager` to 
 from classes.LyricsManager import LyricsManager
 
 lyricsmanager = LyricsManager("my_spotify_client_id", "my_spotify_client_secret", "my_spotify_dc_cookie")
-print(lyricsmanager.search_on_netease("we own it", "2 Chainz"))
-print(lyricsmanager.search_on_spotify("we own it", "2 Chainz"))
+print(lyricsmanager.search_on_spotify_with_syncedlyrics_provider("we own it", "2 Chainz"))
+```
+Or use everything together for Beatsaber (AudioTrip is not implemented yet):
+```
+python3 beatsaber.py
 ```
 
 How to get Spotify Client ID and Client Secret:
