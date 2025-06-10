@@ -384,6 +384,7 @@ class LyricsManager:
             title = result["tracks"]["items"][0]["name"].split("(")[0].split(" - ")[0]
             artists = [artist["name"] for artist in result["tracks"]["items"][0]["artists"]]
             coverLink = result["tracks"]["items"][0]["album"]["images"][0]["url"]
+            self.logger.info(f"search_on_spotify_with_syncedlyrics_provider: found {title} by {artists[0]} with cover link {coverLink}")
             lyrics_lines = self.get_lyrics_from_syncedlyrics(title, artists[0], result["tracks"]["items"][0]["duration_ms"])
             if not lyrics_lines:
                 self.logger.error(f"search_on_spotify_with_syncedlyrics_provider: failed to get lyrics for {query}")
