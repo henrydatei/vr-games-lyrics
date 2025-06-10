@@ -21,12 +21,10 @@ class BeatSaberLyricsApp:
         self.ws_thread = None
         self.ws = None
         self.is_running = True
-
-        # Zustand der Anwendung
         self.lyrics_frame = None
         self.current_song_hash = None
-        
-        # Lade Geheimnisse und initialisiere den LyricsManager
+
+        # Load secrets and initialize LyricsManager
         secrets_path = os.path.join(os.path.dirname(__file__), "secrets.json")
         secrets = json.load(open(secrets_path))
         self.lyrics_manager = LyricsManager(secrets['spotify_client_id'], secrets['spotify_client_secret'], secrets['spotify_dc_cookie'])
