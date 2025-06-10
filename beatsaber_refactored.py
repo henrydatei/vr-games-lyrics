@@ -39,7 +39,7 @@ class BeatSaberLyricsApp:
         self.root.title("Beat Saber Lyrics")
         self.root.attributes('-alpha', 0.5)
         self.root.attributes('-topmost', 1)
-        # self.root.overrideredirect(True) # Aktivieren für rahmenloses Fenster
+        self.root.overrideredirect(True) # Aktivieren für rahmenloses Fenster
         
         # Setzt einen Callback für das Schließen des Fensters
         self.root.protocol("WM_DELETE_WINDOW", self.shutdown)
