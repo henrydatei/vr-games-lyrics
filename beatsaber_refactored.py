@@ -127,18 +127,6 @@ class BeatSaberLyricsApp:
                 logger.info("Lied beendet. Lyrics werden entfernt.")
                 self.current_song_hash = None
                 self.root.after(0, self.clear_lyrics_display)
-        
-        # Szenario 3: Spiel wird pausiert oder fortgesetzt
-        if in_level and self.lyrics_frame:
-            level_paused = data.get("LevelPaused", False)
-            if level_paused and not self.is_game_paused:
-                self.is_game_paused = True
-                self.lyrics_frame.pause_lyrics() # Ruft intern timer.pause() auf
-                logger.info("Spiel pausiert, Lyrics-Timer angehalten.")
-            elif not level_paused and self.is_game_paused:
-                self.is_game_paused = False
-                self.lyrics_frame.pause_lyrics() # Ruft intern timer.unpause() auf
-                logger.info("Spiel fortgesetzt, Lyrics-Timer läuft weiter.")
 
     def display_lyrics(self, song_name, song_author):
         """Sucht und zeigt die Lyrics für einen Song an."""
