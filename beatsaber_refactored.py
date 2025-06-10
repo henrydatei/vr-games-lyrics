@@ -26,6 +26,7 @@ class BeatSaberLyricsApp:
         # Zustand der Anwendung
         self.lyrics_frame = None
         self.current_song_hash = None
+        self.is_game_paused = False
         
         # Lade Geheimnisse und initialisiere den LyricsManager
         secrets_path = os.path.join(os.path.dirname(__file__), "secrets.json")
@@ -127,27 +128,17 @@ class BeatSaberLyricsApp:
                 self.current_song_hash = None
                 self.root.after(0, self.clear_lyrics_display)
         
-        # Szenario 3: Modifikatoren oder Übungsmodus ändern sich während des Spiels
-        # if in_level and self.lyrics_frame:
-        #     # Geschwindigkeitsänderungen durch Modifikatoren
-        #     modifiers = data.get("Modifiers", {})
-        #     speed = 1.0
-        #     if modifiers.get("SuperFastSong"): speed = 1.5
-        #     elif modifiers.get("FasterSong"): speed = 1.2
-        #     elif modifiers.get("SlowerSong"): speed = 0.85
-            
-        #     # Übungsmodus
-        #     if data.get("PracticeMode"):
-        #         practice_mods = data.get("PracticeModeModifiers", {})
-        #         speed = practice_mods.get("SongSpeedMul", speed)
-        #         start_time_ms = practice_mods.get("SongStartTime", 0) * 1000
-        #         if self.lyrics_frame.speed != speed:
-        #             self.lyrics_frame.speed = speed
-        #         # jump_to_time ist hier eventuell nicht ideal, da es bei jeder Nachricht getriggert wird.
-        #         # Besser wäre es, den Startzeitpunkt nur einmal zu setzen.
-        #         # Für den Moment lassen wir es einfacher.
-
-        #     self.lyrics_frame.speed = speed
+        # Szenario 3: Spiel wird pausiert oder fortgesetzt
+        if in_level and self.lyrics_frame:
+            level_paused = data.get("LevelPaused", False)
+            if level_paused and not self.is_game_paused:
+                self.is_game_paused = True
+                self.lyrics_frame.pause_lyrics() # Ruft intern timer.pause() auf
+                logger.info("Spiel pausiert, Lyrics-Timer angehalten.")
+            elif not level_paused and self.is_game_paused:
+                self.is_game_paused = False
+                self.lyrics_frame.pause_lyrics() # Ruft intern timer.unpause() auf
+                logger.info("Spiel fortgesetzt, Lyrics-Timer läuft weiter.")
 
     def display_lyrics(self, song_name, song_author):
         """Sucht und zeigt die Lyrics für einen Song an."""
