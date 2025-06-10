@@ -6,18 +6,17 @@ import json
 import logging
 import win32gui
 import time
-import sys
 
 from classes.LyricsManager import LyricsManager
 from classes.LyricsDisplay import LyricsDisplay
 
-# Logging-Konfiguration am Anfang
+# Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class BeatSaberLyricsApp:
     def __init__(self):
-        """Initialisiert die Hauptanwendung."""
+        """Initalises the Beat Saber Lyrics application."""
         self.root = tk.Tk()
         self.ws_thread = None
         self.ws = None
@@ -35,17 +34,17 @@ class BeatSaberLyricsApp:
         self._setup_gui()
 
     def _setup_gui(self):
-        """Konfiguriert das Hauptfenster der GUI."""
+        """Sets up the main GUI window."""
         self.root.title("Beat Saber Lyrics")
         self.root.attributes('-alpha', 0.5)
         self.root.attributes('-topmost', 1)
-        self.root.overrideredirect(True) # Aktivieren für rahmenloses Fenster
-        
-        # Setzt einen Callback für das Schließen des Fensters
+        self.root.overrideredirect(True) # Enable for borderless window
+
+        # Set a callback for closing the window
         self.root.protocol("WM_DELETE_WINDOW", self.shutdown)
 
     def _find_and_position_window(self):
-        """Sucht das Beat Saber Fenster und positioniert das Overlay darunter."""
+        """Finds the Beat Saber window and positions the overlay underneath it."""
         try:
             hwnd = win32gui.FindWindow(None, "Beat Saber")
             if hwnd:
@@ -54,8 +53,8 @@ class BeatSaberLyricsApp:
                 y = rect[1]
                 w = rect[2] - x
                 h = rect[3] - y
-                
-                # Positioniere das Overlay im unteren Drittel
+
+                # Position the overlay in the bottom third
                 tk_x = x
                 tk_y = y + int(0.67 * h)
                 tk_w = w
@@ -66,111 +65,111 @@ class BeatSaberLyricsApp:
             else:
                 return False
         except Exception as e:
-            logger.error(f"Fehler beim Positionieren des Fensters: {e}")
+            logger.error(f"Error positioning window: {e}")
             return False
 
     def _manage_websocket_connection(self):
-        """Verwaltet die WebSocket-Verbindung und stellt sie bei Bedarf wieder her."""
+        """Manages the WebSocket connection and reconnects if necessary."""
         while self.is_running:
             try:
-                logger.info("Versuche, eine WebSocket-Verbindung herzustellen...")
+                logger.info("Attempting to establish WebSocket connection...")
                 self.ws = websocket.WebSocketApp("ws://localhost:2946/BSDataPuller/MapData",
                                                  on_open=self._on_open,
                                                  on_message=self._on_message,
                                                  on_error=self._on_error,
                                                  on_close=self._on_close)
                 self.ws.run_forever()
-                # Wenn run_forever() endet, bedeutet das, die Verbindung wurde geschlossen.
-                # Wir warten kurz, bevor wir einen neuen Versuch starten.
+                # If run_forever() ends, it means the connection was closed.
+                # We wait briefly before attempting to start a new one.
                 if self.is_running:
-                    logger.info("WebSocket-Verbindung geschlossen. Versuche in 5 Sekunden erneut...")
+                    logger.info("WebSocket connection closed. Attempting to reconnect in 5 seconds...")
                     time.sleep(5)
             except Exception as e:
-                logger.error(f"Fehler in der WebSocket-Verwaltung: {e}")
+                logger.error(f"Error managing WebSocket connection: {e}")
                 if self.is_running:
                     time.sleep(5)
 
     def _on_open(self, ws):
-        logger.info("WebSocket-Verbindung erfolgreich geöffnet.")
+        logger.info("WebSocket connection opened successfully.")
 
     def _on_error(self, ws, error):
-        logger.error(f"WebSocket-Fehler: {error}")
+        logger.error(f"WebSocket error: {error}")
 
     def _on_close(self, ws, close_status_code, close_msg):
-        logger.warning(f"WebSocket-Verbindung geschlossen. Status: {close_status_code}, Nachricht: {close_msg}")
+        logger.warning(f"WebSocket connection closed. Status: {close_status_code}, Message: {close_msg}")
 
     def _on_message(self, ws, message):
-        """Verarbeitet eingehende Nachrichten vom WebSocket."""
+        """Processes incoming messages from the WebSocket."""
         data = json.loads(message)
         
         song_hash = data.get("Hash")
         in_level = data.get("InLevel", False)
 
-        # Szenario 1: Ein neues Lied startet
+        # Scenario 1: A new song starts
         if in_level and song_hash and song_hash != self.current_song_hash:
             self.current_song_hash = song_hash
             song_name = data.get("SongName")
             song_author = data.get("SongAuthor")
-            logger.info(f"Neues Lied erkannt: '{song_name}' von '{song_author}'")
+            logger.info(f"New song detected: '{song_name}' by '{song_author}'")
             self.root.after(0, self.display_lyrics, song_name, song_author)
 
-        # Szenario 2: Das Lied endet (abgeschlossen, fehlgeschlagen oder verlassen)
+        # Scenario 2: The song ends (finished, failed, or quit)
         elif not in_level and self.current_song_hash is not None:
             is_finished = data.get("LevelFinished", False)
             is_failed = data.get("LevelFailed", False)
             is_quit = data.get("LevelQuit", False)
             if is_finished or is_failed or is_quit:
-                logger.info("Lied beendet. Lyrics werden entfernt.")
+                logger.info("Song ended. Clearing lyrics display.")
                 self.current_song_hash = None
                 self.root.after(0, self.clear_lyrics_display)
 
     def display_lyrics(self, song_name, song_author):
-        """Sucht und zeigt die Lyrics für einen Song an."""
+        """Searches and displays the lyrics for a song."""
         self.clear_lyrics_display()
 
-        logger.info(f"Suche Lyrics für '{song_name}' von '{song_author}'")
+        logger.info(f"Searching lyrics for '{song_name}' by '{song_author}'")
         lyrics = self.lyrics_manager.search_on_spotify_with_syncedlyrics_provider(song_name, song_author)
 
         if lyrics:
-            logger.info("Lyrics gefunden. Anzeige wird erstellt.")
+            logger.info("Lyrics found. Creating display.")
             self.lyrics_manager.save_song_to_database(lyrics, song_name, song_author)
             self.lyrics_frame = LyricsDisplay(container=self.root, song=lyrics, color="green", speed=1)
             self.lyrics_frame.pack(fill="both", expand=True)
             self.lyrics_frame.start_lyrics()
         else:
-            logger.error(f"Keine Lyrics für '{song_name}' gefunden.")
+            logger.error(f"No lyrics found for '{song_name}'.")
 
     def clear_lyrics_display(self):
-        """Entfernt das aktuelle Lyrics-Frame."""
+        """Removes the current lyrics frame."""
         if self.lyrics_frame:
             self.lyrics_frame.stop_lyrics()
             self.lyrics_frame.destroy()
             self.lyrics_frame = None
 
     def run(self):
-        """Startet die Hauptanwendung."""
-        logger.info("Warte auf Start von Beat Saber...")
+        """Starts the main application."""
+        logger.info("Waiting for Beat Saber to start...")
         while not self._find_and_position_window() and self.is_running:
             time.sleep(2)
-        
-        if not self.is_running: return # Beenden, wenn in der Zwischenzeit geschlossen wurde
 
-        logger.info("Beat Saber gefunden. Starte WebSocket-Thread.")
+        if not self.is_running: return # Stop if closed in the meantime
+
+        logger.info("Beat Saber found. Starting WebSocket thread.")
         self.ws_thread = threading.Thread(target=self._manage_websocket_connection, daemon=True)
         self.ws_thread.start()
 
         self.root.mainloop()
 
     def shutdown(self):
-        """Fährt die Anwendung sauber herunter."""
-        logger.info("Anwendung wird heruntergefahren...")
+        """Shuts down the application cleanly."""
+        logger.info("Shutting down application...")
         self.is_running = False
         if self.lyrics_frame:
             self.lyrics_frame.stop_lyrics()
         if self.ws:
             self.ws.close()
         self.root.destroy()
-        logger.info("Anwendung beendet.")
+        logger.info("Application closed.")
 
 if __name__ == "__main__":
     app = BeatSaberLyricsApp()

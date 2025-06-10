@@ -26,19 +26,19 @@ class LyricsDisplay(ttk.Frame):
         self.preview_lines = []
         self.current_song_line_index = -1
         self.lines_to_show = 4
-        # Die aktive Zeile ist jetzt die zweite (Index 1)
+        # The index of the active line in the preview
         self.active_line_index_in_preview = 1
 
         self.run_main_loop = True
         self.main_thread = threading.Thread(target=self.main_loop)
-        
-        # Erstelle die Labels für die Vorschau
+
+        # Create the labels for the preview
         for _ in range(self.lines_to_show):
             line = tk.Label(self.canvas, text="", font=("Roboto", 42), background=color, fg="black")
             line.pack(anchor="n", padx=10, expand=True)
             self.preview_lines.append(line)
-            
-        # Zeige den Anfangszustand an
+
+        # Show the initial state
         self.show_ith_line(0)
         self.main_thread.start()
 
@@ -60,7 +60,7 @@ class LyricsDisplay(ttk.Frame):
         if self.timer.is_running:
             self.timer.pause()
             self.logger.info("Lyrics paused")
-        elif self.timer.start_time is not None: # Nur unpausen, wenn Timer schon mal lief
+        elif self.timer.start_time is not None: # only unpause if it was started before
             self.timer.unpause()
             self.logger.info("Lyrics unpaused")
 
@@ -74,23 +74,23 @@ class LyricsDisplay(ttk.Frame):
             return
 
         for j in range(self.lines_to_show):
-            # Berechne, welche Zeile aus dem Songtext angezeigt werden soll
+            # Calculate the index of the song line to display
             song_line_to_display_index = i + (j - self.active_line_index_in_preview)
             
             preview_label = self.preview_lines[j]
             
             if 0 <= song_line_to_display_index < len(self.song.lines):
-                # Die Zeile ist gültig
+                # The line is valid
                 line_text = self.song.lines[song_line_to_display_index].text
                 preview_label.config(text=line_text)
-                
-                # Färbe die aktive Zeile weiß
+
+                # Highlight the active line in white
                 if j == self.active_line_index_in_preview:
                     preview_label.config(fg="white")
                 else:
                     preview_label.config(fg="black")
             else:
-                # Außerhalb des Songtextes -> leeres Label
+                # Outside the song text -> empty label
                 preview_label.config(text="")
                         
     def main_loop(self) -> None:
@@ -98,13 +98,13 @@ class LyricsDisplay(ttk.Frame):
         while self.run_main_loop:
             if self.timer.is_running:
                 current_time = self.timer.get_time()
-                
-                # Finde die nächste Zeile, deren Startzeit noch nicht erreicht ist
+
+                # Find the next line whose start time has not been reached
                 i = 0
                 while i < len(self.song.lines) and self.song.lines[i].startMs <= current_time:
                     i += 1
-                
-                # Die aktuelle Zeile ist die davor
+
+                # The current line is the one before
                 current_index = i - 1
                 
                 if current_index != self.current_song_line_index:
@@ -115,9 +115,9 @@ class LyricsDisplay(ttk.Frame):
                 if i == len(self.song.lines) and current_time >= self.song.durationMs:
                     self.logger.info("Lyrics ended")
                     self.stop_lyrics()
-            
-            time.sleep(0.05) # CPU-Last reduzieren
-                        
+
+            time.sleep(0.05) # Reduce CPU load
+
     def jump_to_time(self, time_in_ms: int) -> None:
         """Jumps to the specified time in milliseconds."""
         self.timer.set_time(time_in_ms)
