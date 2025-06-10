@@ -28,6 +28,7 @@ Run the application:
 ```bash
 python3 beatsaber.py
 ```
+To access the websocket from Beatsaber, you need to install the Mod [Data Puller](https://github.com/ReadieFur/BSDataPuller). I reccommend [BS Manager](https://github.com/Zagrios/bs-manager) to manage mods, maps and versions of Beatsaber.
 
 AudioTrip and Synthriders are not supported yet, but it will be in the future.
 
