@@ -40,9 +40,6 @@ class BeatSaberLyricsApp:
         self.root.attributes('-alpha', 0.5)
         self.root.attributes('-topmost', 1)
         # self.root.overrideredirect(True) # Aktivieren für rahmenloses Fenster
-
-        close_button = tk.Button(self.root, text="X", command=self.shutdown)
-        close_button.pack(anchor="ne", padx=5, pady=5)
         
         # Setzt einen Callback für das Schließen des Fensters
         self.root.protocol("WM_DELETE_WINDOW", self.shutdown)
