@@ -31,3 +31,11 @@ How to get Spotify DC Cookie:
 - Go to the Application tab
 - On the left, go to Cookies > https://open.spotify.com
 - Copy the value of the `sp_dc` cookie
+
+Paste all of this information in the `secrets.json` file (if this file does not exist, create it):
+```json
+{
+    "spotify_client_id": "your_client_id",
+    "spotify_client_secret": "your_client_secret",
+    "spotify_dc_cookie": "your_sp_dc_cookie"
+}
