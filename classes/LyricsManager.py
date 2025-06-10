@@ -361,9 +361,9 @@ class LyricsManager:
             lyrics_lines.append(LyricsLine(text=text, startMs=start_ms, endMs=end_ms, durationMs=duration_ms))
         
         return lyrics_lines
-    
-    def search_on_spotify_with_syncedlyrics_provider(self, title: str, main_artist: str) -> Song|None:
-        """Search for a song on Spotify and get the song with lyrics, cover link, title and artist. The best match is selected based on popularity from the 3 best matches. The lyrics comes from the syncedlyrics package.
+
+    def search_on_spotify_with_syncedlyrics_provider(self, title: str, main_artist: str, limit: int = 1) -> Song|None:
+        """Search for a song on Spotify and get the song with lyrics, cover link, title and artist. The best match is selected based on popularity from the <limit> best matches. The lyrics comes from the syncedlyrics package.
 
         Args:
             title (str): The title of the song.
@@ -375,7 +375,7 @@ class LyricsManager:
         query = title + " " + main_artist
         self.logger.info(f"search_on_spotify_with_syncedlyrics_provider: searching for {query}")
         try:
-            result = self.spotify.search(query, limit = 3, type = "track")
+            result = self.spotify.search(query, limit = limit, type = "track")
             if len(result["tracks"]["items"]) == 0:
                 self.logger.error(f"search_on_spotify_with_syncedlyrics_provider: failed to find {query}")
                 return None
