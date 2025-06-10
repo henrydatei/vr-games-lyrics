@@ -334,7 +334,7 @@ class LyricsManager:
     def get_lyrics_from_syncedlyrics(self, title: str, main_artist: str, song_length_in_ms: int) -> List[LyricsLine]|None:
         """Search for lyrics with Python package syncedlyrics (https://github.com/moehmeni/syncedlyrics) and return them as a list of LyricsLine objects."""
         query = title + " " + main_artist
-        lyrics_text = syncedlyrics.search(query, synced_only=True)
+        lyrics_text = syncedlyrics.search(query, allow_plain_format=False)
         if lyrics_text is None:
             return None
         
