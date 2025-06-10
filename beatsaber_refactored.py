@@ -26,7 +26,6 @@ class BeatSaberLyricsApp:
         # Zustand der Anwendung
         self.lyrics_frame = None
         self.current_song_hash = None
-        self.is_game_paused = False
         
         # Lade Geheimnisse und initialisiere den LyricsManager
         secrets_path = os.path.join(os.path.dirname(__file__), "secrets.json")
@@ -133,15 +132,7 @@ class BeatSaberLyricsApp:
         self.clear_lyrics_display()
 
         logger.info(f"Suche Lyrics für '{song_name}' von '{song_author}'")
-        # Suchreihenfolge definieren
-        # lyrics = self.lyrics_manager.search_in_database(song_name, song_author)
         lyrics = self.lyrics_manager.search_on_spotify_with_syncedlyrics_provider(song_name, song_author)
-        # if not lyrics:
-        #     lyrics = self.lyrics_manager.search_on_spotify_with_syncedlyrics_provider(song_name, song_author)
-        # if not lyrics:
-        #     lyrics = self.lyrics_manager.search_on_spotify(song_name, song_author)
-        # if not lyrics:
-        #     lyrics = self.lyrics_manager.search_on_netease(song_name, song_author)
 
         if lyrics:
             logger.info("Lyrics gefunden. Anzeige wird erstellt.")
