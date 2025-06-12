@@ -24,11 +24,18 @@ How to get Spotify DC Cookie:
 - On the left, go to Cookies > https://open.spotify.com
 - Copy the value of the `sp_dc` cookie
 
-Run the application:
+### Beatsaber
+Start Beatsaber and run the application:
 ```bash
 python3 beatsaber.py
 ```
 To access the websocket from Beatsaber, you need to install the Mod [Data Puller](https://github.com/ReadieFur/BSDataPuller). I reccommend [BS Manager](https://github.com/Zagrios/bs-manager) to manage mods, maps and versions of Beatsaber.
+
+### AudioTrip
+
+AudioTrip and Synthriders are not supported yet, but it will be in the future.
+
+### Synthriders
 
 AudioTrip and Synthriders are not supported yet, but it will be in the future.
 
