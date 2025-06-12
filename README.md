@@ -6,8 +6,7 @@ Clone the repository, install the dependencies (`pip install -r requirements.txt
 ```json
 {
     "spotify_client_id": "your_client_id",
-    "spotify_client_secret": "your_client_secret",
-    "spotify_dc_cookie": "your_sp_dc_cookie"
+    "spotify_client_secret": "your_client_secret"
 }
 ```
 
@@ -15,14 +14,6 @@ How to get Spotify Client ID and Client Secret:
 - Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/)
 - Create a new app, fill out the info, set redirect URI to `http://localhost:8080/`
 - Copy the Client ID and Client Secret from Settings > Client ID and Secret
-
-How to get Spotify DC Cookie:
-- Open [Spotify](https://www.spotify.com/) in your browser and login
-- Open https://open.spotify.com/get_access_token?reason=transport&productType=web_player in your browser
-- Open the developer tools (F12)
-- Go to the Application tab
-- On the left, go to Cookies > https://open.spotify.com
-- Copy the value of the `sp_dc` cookie
 
 ### Beatsaber
 Start Beatsaber and run the application:
