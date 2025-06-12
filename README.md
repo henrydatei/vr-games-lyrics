@@ -22,6 +22,10 @@ python3 beatsaber.py
 ```
 To access the websocket from Beatsaber, you need to install the Mod [Data Puller](https://github.com/ReadieFur/BSDataPuller). I reccommend [BS Manager](https://github.com/Zagrios/bs-manager) to manage mods, maps and versions of Beatsaber.
 
+Known issues:
+- no pause detection yet, so the lyrics will continue to scroll when you pause the game
+- the timing of the lyrics is not accurate, because the websocket says that the song has started, but it takes some time until the song is actually loaded and played. Even some live data from the game is not accurate enough, since it does not support sub-second precision. At the current state, the search time for the lyrics and the loading times are sort of balancing each other out.
+
 ### AudioTrip
 
 AudioTrip is not supported yet, but it will be in the future.
@@ -35,9 +39,6 @@ python3 synthriders.py
 
 To access the websocket from Synthriders, you need to install the Mod [SynthRiders Websockets Mod](https://github.com/bookdude13/SynthRiders-Websockets-Mod). For that you need [MelonLoader](https://github.com/LavaGang/MelonLoader). Technically [NoodleManagerX](https://github.com/tommaier123/NoodleManagerX) should also work, they have a different websocket mod, but the same messages. But I was not able to get it to work with NoodleManagerX, so I recommend installing it manually.
 
-## How it works under the hood
-To achive the goal of presenting the lyrics of the song you are currently playing in Beatsaber/AudioTrip/Synthriders in real-time, this project uses the following technologies:
-- A class `LyricsManager` that is responsible for getting the lyrics of the song. Currently it can search on Spotify and Netease.
-- A class `LyricsDisplay` that is responsible for displaying the lyrics in real-time on the screen.
-
-This two classes need to be connected, the information of the song being played in Beatsaber/AudioTrip/Synthriders comes from a websocket connection. Have a look at the `beatsaber.py` file to see how it works. It is not that complicated, but it lacks some features like detecting when the game is paused or do an accurate timing of the lyrics. Problem with the timing are the level loading times of beatsaber: The websocket says that the song has started, but it takes some time until the song is actually loaded and played. 
+Known issues:
+- no pause detection yet, so the lyrics will continue to scroll when you pause the game. The websocket mod does not have a message for that, so it is not possible to detect it.
+- timing issues are the same as with Beatsaber, see above. But I might be able to use the live data from the game to improve the timing in the future.
