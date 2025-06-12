@@ -24,11 +24,16 @@ To access the websocket from Beatsaber, you need to install the Mod [Data Puller
 
 ### AudioTrip
 
-AudioTrip and Synthriders are not supported yet, but it will be in the future.
+AudioTrip is not supported yet, but it will be in the future.
 
 ### Synthriders
 
-AudioTrip and Synthriders are not supported yet, but it will be in the future.
+Start Synthriders and run the application:
+```bash
+python3 synthriders.py
+```
+
+To access the websocket from Synthriders, you need to install the Mod [SynthRiders Websockets Mod](https://github.com/bookdude13/SynthRiders-Websockets-Mod). For that you need [MelonLoader](https://github.com/LavaGang/MelonLoader). Technically [NoodleManagerX](https://github.com/tommaier123/NoodleManagerX) should also work, they have a different websocket mod, but the same messages. But I was not able to get it to work with NoodleManagerX, so I recommend installing it manually.
 
 ## How it works under the hood
 To achive the goal of presenting the lyrics of the song you are currently playing in Beatsaber/AudioTrip/Synthriders in real-time, this project uses the following technologies:
